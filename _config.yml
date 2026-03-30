@@ -1,0 +1,11 @@
+title: Drop — Launching Soon
+description: A premium product launch waitlist page
+theme: jekyll-theme-primer
+
+# Required defaults
+markdown: kramdown
+highlighter: rouge
+
+# Root deployment
+baseurl: ""
+url: ""
