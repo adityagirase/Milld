@@ -384,7 +384,10 @@
     
       cwSys('Chatting as ' + cwName);
     
-      setTimeout(() => document.getElementById('cw-input').focus(), 100);
+      // ✅ ADD THIS
+      setTimeout(() => {
+        cwBubble('in', `Hey ${cwName}! 👋 How can I help you today?`);
+      }, 300);
     }
       
 
