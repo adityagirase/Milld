@@ -448,7 +448,13 @@
           console.error("Webhook error:",err);
         }
         cwTyping(false);
-        const reply  = data.reply  || data.ai_reply  || "Thanks! We'll get back to you shortly.";
+        const reply = data.reply || data.ai_reply;
+
+        if (!reply) {
+          console.error("Invalid response from webhook:", data);
+        }
+        
+        const finalReply = reply || `Got you ${cwName}! 👍 Give me a sec.`;
         const tag    = data.tag    || data.ai_tag    || 'Customer';
         const status = data.status || 'Responded';
         cwPill(outRow, tag);
