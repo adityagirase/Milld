@@ -442,7 +442,7 @@
       
           data = await res.json();
         } catch (err) {
-          console.error(err);
+          console.error("Webhook error:",err);
         }
         cwTyping(false);
         const reply  = data.reply  || data.ai_reply  || "Thanks! We'll get back to you shortly.";
