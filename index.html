@@ -355,23 +355,36 @@
 
     async function cwSetName() {
       const v = document.getElementById('cw-nameinput').value.trim();
-      if (!v) return;
-  
-      cwName = v;
-  
-      // 🔥 ADD THIS CALL
-      await fetch(CW_WEBHOOK, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          name: cwName,
-          message: "User started chat",
-          source: "Chat Widget",
-          timestamp: new Date().toISOString()
-        })
-      });
+      if (!v) {
+        document.getElementById('cw-nameinput').style.outline = '2px solid #e24b4a';
+        return;
+      }
     
-      ...
+      cwName = v;
+    
+      // ✅ SAFE API CALL
+      try {
+        await fetch(CW_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: cwName,
+            message: "User started chat",
+            source: "Chat Widget",
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (e) {
+        console.error("Name send failed", e);
+      }
+    
+      document.getElementById('cw-av').textContent = cwName[0].toUpperCase();
+      document.getElementById('cw-namebar').style.display = 'none';
+      document.getElementById('cw-inbar').classList.add('on');
+    
+      cwSys('Chatting as ' + cwName);
+    
+      setTimeout(() => document.getElementById('cw-input').focus(), 100);
     }
       
 
@@ -411,12 +424,17 @@
       document.getElementById('cw-sendbtn').disabled = true;
       const outRow = cwBubble('out', txt);
       cwTyping(true); cwLog(false, 'Processing...');
+      let data = {};
       try {
         const res = await fetch(CW_WEBHOOK, {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ name:cwName, message:txt, source:'Chat Widget', timestamp:new Date().toISOString() })
         });
-        const data = await res.json();
+        data = await res.json();
+      } catch (err) {
+        console.error('Webhook error:', err);
+        data = {};
+      }
         cwTyping(false);
         const reply  = data.reply  || data.ai_reply  || "Thanks! We'll get back to you shortly.";
         const tag    = data.tag    || data.ai_tag    || 'Customer';
