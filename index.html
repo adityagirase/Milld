@@ -336,6 +336,7 @@
     });
 
     // ── CHAT WIDGET ────────────────────────────────────────────
+    let cwHistory = [];
     let cwName = '', cwBusy = false, cwOpen = false;
     document.getElementById('cw-wt').textContent = cwTime();
     setTimeout(() => document.getElementById('cw-badge').classList.add('on'), 3000);
@@ -435,9 +436,16 @@
           const res = await fetch(CW_WEBHOOK, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            // Save user message
+            cwHistory.push({ role: "user", text: txt });
+            
+            // Keep only last 6 messages (important)
+            if (cwHistory.length > 6) cwHistory.shift();
+            
             body: JSON.stringify({
               name: cwName,
               message: txt,
+              history: cwHistory,
               source: 'Chat Widget',
               timestamp: new Date().toISOString()
             })
@@ -461,7 +469,12 @@
         setTimeout(() => { cwBubble('in', reply); cwLog(true, 'Logged · ' + tag + ' · ' + status); }, 350);
       } catch(err) {
         cwTyping(false);
-        cwBubble('in', 'Sorry, something went wrong. Please try again.');
+        cwBubble('in', reply);
+        // Save bot reply
+        cwHistory.push({ role: "assistant", text: reply });
+        
+        // Keep memory small
+        if (cwHistory.length > 6) cwHistory.shift();
         cwLog(false, 'Failed to log'); console.error(err);
       }
       cwBusy = false;
