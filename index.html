@@ -424,17 +424,26 @@
       document.getElementById('cw-sendbtn').disabled = true;
       const outRow = cwBubble('out', txt);
       cwTyping(true); cwLog(false, 'Processing...');
-      let data = {};
       try {
-        const res = await fetch(CW_WEBHOOK, {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ name:cwName, message:txt, source:'Chat Widget', timestamp:new Date().toISOString() })
-        });
-        data = await res.json();
-      } catch (err) {
-        console.error('Webhook error:', err);
-        data = {};
-      }
+
+        // 🔥 REPLACE HERE
+        let data = {};
+        try {
+          const res = await fetch(CW_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: cwName,
+              message: txt,
+              source: 'Chat Widget',
+              timestamp: new Date().toISOString()
+            })
+          });
+      
+          data = await res.json();
+        } catch (err) {
+          console.error(err);
+        }
         cwTyping(false);
         const reply  = data.reply  || data.ai_reply  || "Thanks! We'll get back to you shortly.";
         const tag    = data.tag    || data.ai_tag    || 'Customer';
