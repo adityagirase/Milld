@@ -353,16 +353,27 @@
       }
     }
 
-    function cwSetName() {
+    async function cwSetName() {
       const v = document.getElementById('cw-nameinput').value.trim();
-      if (!v) { document.getElementById('cw-nameinput').style.outline='2px solid #e24b4a'; return; }
+      if (!v) return;
+  
       cwName = v;
-      document.getElementById('cw-av').textContent = cwName[0].toUpperCase();
-      document.getElementById('cw-namebar').style.display = 'none';
-      document.getElementById('cw-inbar').classList.add('on');
-      cwSys('Chatting as ' + cwName);
-      setTimeout(() => document.getElementById('cw-input').focus(), 100);
+  
+      // 🔥 ADD THIS CALL
+      await fetch(CW_WEBHOOK, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          name: cwName,
+          message: "User started chat",
+          source: "Chat Widget",
+          timestamp: new Date().toISOString()
+        })
+      });
+    
+      ...
     }
+      
 
     function cwSys(t) {
       const el = document.createElement('div');
