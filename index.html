@@ -475,12 +475,24 @@
       } catch(err) {
         cwTyping(false);
         cwBubble('in', reply);
-        // Save bot reply
-        cwHistory.push({ role: "assistant", text: reply });
+        // ✅ FIRST store message
+        cwHistory.push({ role: "user", text: txt });
         
         // Keep memory small
         if (cwHistory.length > 6) cwHistory.shift();
-        cwLog(false, 'Failed to log'); console.error(err);
+        
+        // ✅ THEN send request
+        const res = await fetch(CW_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: cwName,
+            message: txt,
+            history: cwHistory,
+            source: 'Chat Widget',
+            timestamp: new Date().toISOString()
+          })
+        });
       }
       cwBusy = false;
       document.getElementById('cw-sendbtn').disabled = false;
