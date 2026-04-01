@@ -303,10 +303,6 @@
   </div>
 
   <script>
-    // function cwToggle() {
-    //   const overlay = document.getElementById('cw-overlay');
-    //   overlay.classList.toggle('open');
-    // }
     // ── CONFIGURE ──────────────────────────────────────────────
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7gXGDKg7sETBEqP3KI3PdCLasXGi1EdPUi-nUJERLtzO9mL9i_gpiEbzbCuWnoMcg/exec';
     const CW_WEBHOOK      = 'https://adityagirase.app.n8n.cloud/webhook/chat-widget';
@@ -323,16 +319,16 @@
         document.getElementById('lp-phone').style.borderColor = !phone ? '#e24b4a' : '';
         return;
       }
-      document.getElementById('lp-name').style.borderColor = '';
+      document.getElementById('lp-name').style.borderColor  = '';
       document.getElementById('lp-phone').style.borderColor = '';
       const btn = document.getElementById('submit-btn');
       btn.classList.add('loading');
       document.getElementById('btn-text').textContent = 'Saving your spot…';
       try {
         await fetch(APPS_SCRIPT_URL, {
-          method:'POST', mode:'no-cors',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ name, phone, insta: insta||'', source:'Website', timestamp: new Date().toISOString() })
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, insta: insta || '', source: 'Website', timestamp: new Date().toISOString() })
         });
       } catch(err) { console.error(err); }
       document.getElementById('form-wrap').style.display = 'none';
@@ -340,14 +336,14 @@
     });
 
     // ── CHAT WIDGET ────────────────────────────────────────────
-    
     let cwHistory = [];
     let cwName = '', cwBusy = false, cwOpen = false;
+
     document.getElementById('cw-wt').textContent = cwTime();
     setTimeout(() => document.getElementById('cw-badge').classList.add('on'), 3000);
 
     function cwTime() {
-      return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+      return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     }
 
     function cwToggle() {
@@ -355,7 +351,12 @@
       document.getElementById('cw-overlay').classList.toggle('open', cwOpen);
       if (cwOpen) {
         document.getElementById('cw-badge').classList.remove('on');
-        setTimeout(() => (cwName ? document.getElementById('cw-input') : document.getElementById('cw-nameinput')).focus(), 280);
+        setTimeout(() => {
+          (cwName
+            ? document.getElementById('cw-input')
+            : document.getElementById('cw-nameinput')
+          ).focus();
+        }, 280);
       }
     }
 
@@ -365,41 +366,18 @@
         document.getElementById('cw-nameinput').style.outline = '2px solid #e24b4a';
         return;
       }
-    
       cwName = v;
-    
-      // ✅ SAFE API CALL
-      try {
-        await fetch(CW_WEBHOOK, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: cwName,
-            message: "User started chat",
-            source: "Chat Widget",
-            timestamp: new Date().toISOString()
-          })
-        });
-      } catch (e) {
-        console.error("Name send failed", e);
-      }
-    
       document.getElementById('cw-av').textContent = cwName[0].toUpperCase();
       document.getElementById('cw-namebar').style.display = 'none';
       document.getElementById('cw-inbar').classList.add('on');
-    
       cwSys('Chatting as ' + cwName);
-    
-      // ✅ ADD THIS
-      setTimeout(() => {
-        cwBubble('in', `Hey ${cwName}! 👋 How can I help you today?`);
-      }, 300);
+      setTimeout(() => document.getElementById('cw-input').focus(), 100);
     }
-      
 
     function cwSys(t) {
       const el = document.createElement('div');
-      el.className = 'cw-sys'; el.textContent = t;
+      el.className = 'cw-sys';
+      el.textContent = t;
       document.getElementById('cw-msgs').appendChild(el);
       cwScroll();
     }
@@ -408,39 +386,52 @@
       const row = document.createElement('div'); row.className = 'cw-row ' + dir;
       const bub = document.createElement('div'); bub.className = 'cw-bub'; bub.textContent = text;
       const tm  = document.createElement('div'); tm.className = 'cw-tm';
-      tm.innerHTML = cwTime() + (dir==='out' ? ' <span class="cw-tick">✓✓</span>' : '');
-      row.appendChild(bub); row.appendChild(tm);
+      tm.innerHTML = cwTime() + (dir === 'out' ? ' <span class="cw-tick">✓✓</span>' : '');
+      row.appendChild(bub);
+      row.appendChild(tm);
       document.getElementById('cw-msgs').appendChild(row);
-      cwScroll(); return row;
+      cwScroll();
+      return row;
     }
 
     function cwPill(row, tag) {
       const p = document.createElement('div');
       p.className = 'cw-tag ' + tag;
-      p.textContent = tag==='Customer' ? '👤 Customer' : tag==='Collab' ? '🤝 Collab' : '🚫 Spam';
+      p.textContent = tag === 'Customer' ? '👤 Customer' : tag === 'Collab' ? '🤝 Collab' : '🚫 Spam';
       row.appendChild(p);
     }
 
-    function cwTyping(on) { document.getElementById('cw-typing').classList.toggle('on', on); cwScroll(); }
-    function cwScroll() { const m=document.getElementById('cw-msgs'); m.scrollTop=m.scrollHeight; }
-    function cwLog(on, txt) { document.getElementById('cw-ld').classList.toggle('on',on); document.getElementById('cw-logtxt').textContent=txt; }
+    function cwTyping(on) {
+      document.getElementById('cw-typing').classList.toggle('on', on);
+      cwScroll();
+    }
+
+    function cwScroll() {
+      const m = document.getElementById('cw-msgs');
+      m.scrollTop = m.scrollHeight;
+    }
+
+    function cwLog(on, txt) {
+      document.getElementById('cw-ld').classList.toggle('on', on);
+      document.getElementById('cw-logtxt').textContent = txt;
+    }
 
     async function cwSend() {
-      const input = document.getElementById('cw-input');
-      const txt = input.value.trim();
-      if (!txt) return;
-    
-      input.value = '';
-    
-      // ✅ Show user message
-      cwBubble('out', txt);
-    
-      // ✅ Store in history BEFORE sending
-      cwHistory.push({ role: "user", text: txt });
-    
-      // keep last 6 messages
+      const inp = document.getElementById('cw-input');
+      const txt = inp.value.trim();
+      if (!txt || cwBusy) return;
+
+      cwBusy = true;
+      inp.value = '';
+      document.getElementById('cw-sendbtn').disabled = true;
+
+      const outRow = cwBubble('out', txt);
+      cwTyping(true);
+      cwLog(false, 'Processing...');
+
+      cwHistory.push({ role: 'user', text: txt });
       if (cwHistory.length > 6) cwHistory.shift();
-    
+
       try {
         const res = await fetch(CW_WEBHOOK, {
           method: 'POST',
@@ -453,29 +444,208 @@
             timestamp: new Date().toISOString()
           })
         });
-    
+
         const data = await res.json();
-    
-        const reply = data.reply || data.ai_reply || `Got you ${cwName}! 👍`;
-    
-        // ✅ Show bot reply
-        cwBubble('in', reply);
-    
-        // ✅ Store bot reply
-        cwHistory.push({ role: "assistant", text: reply });
-    
+        cwTyping(false);
+
+        const reply  = data.reply  || data.ai_reply  || "Thanks! We'll get back to you shortly.";
+        const tag    = data.tag    || data.ai_tag    || 'Customer';
+        const status = data.status || 'Responded';
+
+        cwPill(outRow, tag);
+
+        setTimeout(() => {
+          cwBubble('in', reply);
+          cwLog(true, 'Logged · ' + tag + ' · ' + status);
+        }, 350);
+
+        cwHistory.push({ role: 'assistant', text: reply });
         if (cwHistory.length > 6) cwHistory.shift();
-    
-      } catch (e) {
-        console.error("Chat error:", e);
-        cwBubble('in', `Hey ${cwName}! Something went wrong 😅`);
+
+      } catch(err) {
+        cwTyping(false);
+        cwBubble('in', 'Sorry, something went wrong. Please try again.');
+        cwLog(false, 'Failed to log');
+        console.error(err);
       }
-    }
-        
+
       cwBusy = false;
       document.getElementById('cw-sendbtn').disabled = false;
       inp.focus();
     }
+    // // function cwToggle() {
+    // //   const overlay = document.getElementById('cw-overlay');
+    // //   overlay.classList.toggle('open');
+    // // }
+    // // ── CONFIGURE ──────────────────────────────────────────────
+    // const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7gXGDKg7sETBEqP3KI3PdCLasXGi1EdPUi-nUJERLtzO9mL9i_gpiEbzbCuWnoMcg/exec';
+    // const CW_WEBHOOK      = 'https://adityagirase.app.n8n.cloud/webhook/chat-widget';
+    // // ──────────────────────────────────────────────────────────
+
+    // // ── LANDING FORM ───────────────────────────────────────────
+    // document.getElementById('lead-form').addEventListener('submit', async (e) => {
+    //   e.preventDefault();
+    //   const name  = document.getElementById('lp-name').value.trim();
+    //   const phone = document.getElementById('lp-phone').value.trim();
+    //   const insta = document.getElementById('lp-insta').value.trim();
+    //   if (!name || !phone) {
+    //     document.getElementById('lp-name').style.borderColor  = !name  ? '#e24b4a' : '';
+    //     document.getElementById('lp-phone').style.borderColor = !phone ? '#e24b4a' : '';
+    //     return;
+    //   }
+    //   document.getElementById('lp-name').style.borderColor = '';
+    //   document.getElementById('lp-phone').style.borderColor = '';
+    //   const btn = document.getElementById('submit-btn');
+    //   btn.classList.add('loading');
+    //   document.getElementById('btn-text').textContent = 'Saving your spot…';
+    //   try {
+    //     await fetch(APPS_SCRIPT_URL, {
+    //       method:'POST', mode:'no-cors',
+    //       headers:{'Content-Type':'application/json'},
+    //       body: JSON.stringify({ name, phone, insta: insta||'', source:'Website', timestamp: new Date().toISOString() })
+    //     });
+    //   } catch(err) { console.error(err); }
+    //   document.getElementById('form-wrap').style.display = 'none';
+    //   document.getElementById('form-success').classList.add('visible');
+    // });
+
+    // // ── CHAT WIDGET ────────────────────────────────────────────
+    
+    // let cwHistory = [];
+    // let cwName = '', cwBusy = false, cwOpen = false;
+    // document.getElementById('cw-wt').textContent = cwTime();
+    // setTimeout(() => document.getElementById('cw-badge').classList.add('on'), 3000);
+
+    // function cwTime() {
+    //   return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    // }
+
+    // function cwToggle() {
+    //   cwOpen = !cwOpen;
+    //   document.getElementById('cw-overlay').classList.toggle('open', cwOpen);
+    //   if (cwOpen) {
+    //     document.getElementById('cw-badge').classList.remove('on');
+    //     setTimeout(() => (cwName ? document.getElementById('cw-input') : document.getElementById('cw-nameinput')).focus(), 280);
+    //   }
+    // }
+
+    // async function cwSetName() {
+    //   const v = document.getElementById('cw-nameinput').value.trim();
+    //   if (!v) {
+    //     document.getElementById('cw-nameinput').style.outline = '2px solid #e24b4a';
+    //     return;
+    //   }
+    
+    //   cwName = v;
+    
+    //   // ✅ SAFE API CALL
+    //   try {
+    //     await fetch(CW_WEBHOOK, {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({
+    //         name: cwName,
+    //         message: "User started chat",
+    //         source: "Chat Widget",
+    //         timestamp: new Date().toISOString()
+    //       })
+    //     });
+    //   } catch (e) {
+    //     console.error("Name send failed", e);
+    //   }
+    
+    //   document.getElementById('cw-av').textContent = cwName[0].toUpperCase();
+    //   document.getElementById('cw-namebar').style.display = 'none';
+    //   document.getElementById('cw-inbar').classList.add('on');
+    
+    //   cwSys('Chatting as ' + cwName);
+    
+    //   // ✅ ADD THIS
+    //   setTimeout(() => {
+    //     cwBubble('in', `Hey ${cwName}! 👋 How can I help you today?`);
+    //   }, 300);
+    // }
+      
+
+    // function cwSys(t) {
+    //   const el = document.createElement('div');
+    //   el.className = 'cw-sys'; el.textContent = t;
+    //   document.getElementById('cw-msgs').appendChild(el);
+    //   cwScroll();
+    // }
+
+    // function cwBubble(dir, text) {
+    //   const row = document.createElement('div'); row.className = 'cw-row ' + dir;
+    //   const bub = document.createElement('div'); bub.className = 'cw-bub'; bub.textContent = text;
+    //   const tm  = document.createElement('div'); tm.className = 'cw-tm';
+    //   tm.innerHTML = cwTime() + (dir==='out' ? ' <span class="cw-tick">✓✓</span>' : '');
+    //   row.appendChild(bub); row.appendChild(tm);
+    //   document.getElementById('cw-msgs').appendChild(row);
+    //   cwScroll(); return row;
+    // }
+
+    // function cwPill(row, tag) {
+    //   const p = document.createElement('div');
+    //   p.className = 'cw-tag ' + tag;
+    //   p.textContent = tag==='Customer' ? '👤 Customer' : tag==='Collab' ? '🤝 Collab' : '🚫 Spam';
+    //   row.appendChild(p);
+    // }
+
+    // function cwTyping(on) { document.getElementById('cw-typing').classList.toggle('on', on); cwScroll(); }
+    // function cwScroll() { const m=document.getElementById('cw-msgs'); m.scrollTop=m.scrollHeight; }
+    // function cwLog(on, txt) { document.getElementById('cw-ld').classList.toggle('on',on); document.getElementById('cw-logtxt').textContent=txt; }
+
+    // async function cwSend() {
+    //   const input = document.getElementById('cw-input');
+    //   const txt = input.value.trim();
+    //   if (!txt) return;
+    
+    //   input.value = '';
+    
+    //   // ✅ Show user message
+    //   cwBubble('out', txt);
+    
+    //   // ✅ Store in history BEFORE sending
+    //   cwHistory.push({ role: "user", text: txt });
+    
+    //   // keep last 6 messages
+    //   if (cwHistory.length > 6) cwHistory.shift();
+    
+    //   try {
+    //     const res = await fetch(CW_WEBHOOK, {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({
+    //         name: cwName,
+    //         message: txt,
+    //         history: cwHistory,
+    //         source: 'Chat Widget',
+    //         timestamp: new Date().toISOString()
+    //       })
+    //     });
+    
+    //     const data = await res.json();
+    
+    //     const reply = data.reply || data.ai_reply || `Got you ${cwName}! 👍`;
+    
+    //     // ✅ Show bot reply
+    //     cwBubble('in', reply);
+    
+    //     // ✅ Store bot reply
+    //     cwHistory.push({ role: "assistant", text: reply });
+    
+    //     if (cwHistory.length > 6) cwHistory.shift();
+    
+    //   } catch (e) {
+    //     console.error("Chat error:", e);
+    //     cwBubble('in', `Hey ${cwName}! Something went wrong 😅`);
+    //   }
+    // }
+        
+    //   cwBusy = false;
+    //   document.getElementById('cw-sendbtn').disabled = false;
+    //   inp.focus();
+    // }
   </script>
 
 </body>
