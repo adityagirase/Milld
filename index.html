@@ -303,10 +303,10 @@
   </div>
 
   <script>
-    function cwToggle() {
-      const overlay = document.getElementById('cw-overlay');
-      overlay.classList.toggle('open');
-    }
+    // function cwToggle() {
+    //   const overlay = document.getElementById('cw-overlay');
+    //   overlay.classList.toggle('open');
+    // }
     // ── CONFIGURE ──────────────────────────────────────────────
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7gXGDKg7sETBEqP3KI3PdCLasXGi1EdPUi-nUJERLtzO9mL9i_gpiEbzbCuWnoMcg/exec';
     const CW_WEBHOOK      = 'https://adityagirase.app.n8n.cloud/webhook/chat-widget';
@@ -471,25 +471,7 @@
         cwBubble('in', `Hey ${cwName}! Something went wrong 😅`);
       }
     }
-        // ✅ FIRST store message
-        // cwHistory.push({ role: "user", text: txt });
         
-        // Keep memory small
-        if (cwHistory.length > 6) cwHistory.shift();
-        
-        // ✅ THEN send request
-        const res = await fetch(CW_WEBHOOK, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: cwName,
-            message: txt,
-            history: cwHistory,
-            source: 'Chat Widget',
-            timestamp: new Date().toISOString()
-          })
-        });
-      }
       cwBusy = false;
       document.getElementById('cw-sendbtn').disabled = false;
       inp.focus();
